@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Crush Block Blast</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f1020;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: 100%;
+            max-height: 850px;
+            background: #16162c;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.3);
+            border-radius: 12px;
+        }
+        header {
+            text-align: center;
+            width: 100%;
+        }
+        h1 {
+            font-size: 22px;
+            color: #e94560;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+            letter-spacing: 1px;
+        }
+        .score-board {
+            font-size: 15px;
+            color: #a0a0c0;
+            margin-top: 4px;
+        }
+        #score {
+            color: #4eacc5;
+            font-weight: bold;
+        }
+        
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 3px;
+            width: 310px;
+            height: 310px;
+            background: #111122;
+            padding: 5px;
+            border-radius: 8px;
+            border: 2px solid #2a2a4e;
+        }
+        .cell {
+            background: #1a1a38;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+
+        #pieces-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            height: 130px;
+            background: #111122;
+            border-radius: 10px;
+            padding: 10px;
+            border: 2px solid #2a2a4e;
+        }
+        .piece-slot {
+            width: 85px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            transition: transform 0.1s;
+        }
+        .piece-slot:active {
+            transform: scale(0.95);
+        }
+        .mini-grid {
+            display: grid;
+            gap: 2px;
+        }
+        .mini-cell {
+            width: 20px;
+            height: 20px;
+            background: #2a2a4e;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .mini-cell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 26, 0.96);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            padding: 20px;
+            text-align: center;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .btn {
+            background: linear-gradient(45deg, #e94560, #0f3460);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            margin-top: 15px;
+        }
+        .member-info {
+            font-size: 12px;
+            color: #8888aa;
+            margin-bottom: 15px;
+            max-width: 300px;
+            line-height: 1.4;
+        }
+        
+        .music-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            max-width: 280px;
+            margin-bottom: 10px;
+        }
+        .music-option {
+            background: #16213e;
+            border: 2px solid #0f3460;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .music-option.active {
+            border-color: #e94560;
+            background: #0f3460;
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <header>
+        <h1>CRUSH BLOCK BLAST</h1>
+        <div class="score-board">Skor: <span id="score">0</span></div>
+    </header>
+
+    <div id="board"></div>
+
+    <div id="pieces-container">
+        <div class="piece-slot" id="slot-0"></div>
+        <div class="piece-slot" id="slot-1"></div>
+        <div class="piece-slot" id="slot-2"></div>
+    </div>
+
+    <div id="menu-screen" class="screen">
+        <h1 style="font-size: 26px; margin-bottom: 8px;">CRUSH BLOCK BLAST</h1>
+        <p class="subtitle" style="margin-bottom: 15px;">7 üyeli Crush ekibinin bulmacası!</p>
+        
+        <div class="member-info">Aşağıdan oyun sırasında çalmasını istediğin müziği seç ve başla!</div>
+        
+        <div class="music-selector">
+            <div class="music-option active" data-index="0">🎵 CRUSH! (Resmi Müzik)</div>
+            <div class="music-option" data-index="1">🎶 BENİM OLSANA</div>
+        </div>
+
+        <button class="btn" id="start-btn">OYUNA BAŞLA</button>
+    </div>
+
+    <div id="gameover-screen" class="screen hidden">
+        <h1 style="color: #ff4d4d; font-size: 26px;">HAMLE KALMADI!</h1>
+        <p class="subtitle">Oyun Bitti</p>
+        <p style="font-size: 20px; margin-bottom: 15px;">Toplam Skor: <span id="final-score" style="color: #4eacc5; font-weight: bold;">0</span></p>
+        <button class="btn" id="restart-btn">TEKRAR OYNA</button>
+    </div>
+</div>
+
+<script>
+    const MEMBERS = [
+        { name: "Efe", img: "32232683813cb0908224ba7baadf1f28.jpg" },
+        { name: "Arda", img: "0baeaaac22cb5c8d25f379ac1b5c6780.jpg" },
+        { name: "Batu", img: "abebcc0ec43891eba8290da100603d77.jpg" },
+        { name: "Barış", img: "080be3d28e7d3be288b62f6a57a207d3.jpg" },
+        { name: "Oğuzhan", img: "HVVk-_LXkAA4hxd(1).jpg" },
+        { name: "Milan", img: "30c5e7b1e5d1220a362e9c17fe70e130.jpg" },
+        { name: "Barış", img: "87b3cfb6f7b6e696ca4ccb8f576b151c.jpg" }
+    ];
+
+    const MUSIC_LIST = [
+        { name: "CRUSH!", file: "CRUSH - CRUSH! Resmi Müzik Videosu.mp3" },
+        { name: "BENİM OLSANA", file: "CRUSH - BENİM OLSANA Resmi Müzik Videosu.mp3" }
+    ];
+
+    let selectedMusicIndex = 0;
+    let backgroundAudio = null;
+
+    const SHAPES = [
+        [[1]], 
+        [[1, 1]], 
+        [[1], [1]], 
+        [[1, 1], [1, 1]], 
+        [[1, 1, 1]], 
+        [[1], [1], [1]], 
+        [[1, 1], [1, 0]], 
+    ];
+
+    let board = Array(8).fill(null).map(() => Array(8).fill(null));
+    let score = 0;
+    let currentPieces = [null, null, null];
+    let selectedPieceIndex = null;
+
+    const boardElement = document.getElementById("board");
+    const scoreElement = document.getElementById("score");
+    const finalScoreElement = document.getElementById("final-score");
+    const menuScreen = document.getElementById("menu-screen");
+    const gameoverScreen = document.getElementById("gameover-screen");
+    const startBtn = document.getElementById("start-btn");
+    const restartBtn = document.getElementById("restart-btn");
+
+    const musicOptions = document.querySelectorAll(".music-option");
+    musicOptions.forEach(opt => {
+        opt.onclick = () => {
+            musicOptions.forEach(o => o.classList.remove("active"));
+            opt.classList.add("active");
+            selectedMusicIndex = parseInt(opt.dataset.index);
+        };
+    });
+
+    startBtn.onclick = () => {
+        menuScreen.classList.add("hidden");
+        playSelectedMusic();
+        initGame();
+    };
+
+    restartBtn.onclick = () => {
+        gameoverScreen.classList.add("hidden");
+        initGame();
+    };
+
+    function playSelectedMusic() {
+        if (backgroundAudio) {
+            backgroundAudio.pause();
+        }
+        const track = MUSIC_LIST[selectedMusicIndex];
+        backgroundAudio = new Audio(encodeURIComponent(track.file));
+        backgroundAudio.loop = true;
+        backgroundAudio.play().catch(e => console.log("Müzik çalma hatası:", e));
+    }
+
+    function initGame() {
+        board = Array(8).fill(null).map(() => Array(8).fill(null));
+        score = 0;
+        scoreElement.textContent = score;
+        generateNewPieces();
+        renderBoard();
+    }
+
+    function renderBoard() {
+        boardElement.innerHTML = "";
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+
+                if (board[r][c]) {
+                    const img = document.createElement("img");
+                    img.src = encodeURIComponent(board[r][c]);
+                    cell.appendChild(img);
+                }
+
+                cell.onclick = () => handleCellClick(r, c);
+                boardElement.appendChild(cell);
+            }
+        }
+    }
+
+    function generateNewPieces() {
+        for (let i = 0; i < 3; i++) {
+            const randomShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+            const randomMember = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
+            currentPieces[i] = {
+                shape: randomShape,
+                member: randomMember
+            };
+        }
+        renderPieces();
+        checkGameOver();
+    }
+
+    function renderPieces() {
+        for (let i = 0; i < 3; i++) {
+            const slot = document.getElementById(`slot-${i}`);
+            slot.innerHTML = "";
+            const pieceData = currentPieces[i];
+
+            if (!pieceData) continue;
+
+            const rows = pieceData.shape.length;
+            const cols = pieceData.shape[0].length;
+
+            const miniGrid = document.createElement("div");
+            miniGrid.className = "mini-grid";
+            miniGrid.style.gridTemplateColumns = `repeat(${cols}, 20px)`;
+            miniGrid.style.gridTemplateRows = `repeat(${rows}, 20px)`;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const miniCell = document.createElement("div");
+                    miniCell.className = "mini-cell";
+                    if (pieceData.shape[r][c] === 1) {
+                        const img = document.createElement("img");
+                        img.src = encodeURIComponent(pieceData.member.img);
+                        miniCell.appendChild(img);
+                    }
+                    miniGrid.appendChild(miniCell);
+                }
+            }
+
+            slot.appendChild(miniGrid);
+            slot.onclick = () => {
+                selectedPieceIndex = i;
+                document.querySelectorAll(".piece-slot").forEach(s => s.style.border = "none");
+                slot.style.border = "2px solid #e94560";
+            };
+        }
+    }
+
+    function handleCellClick(row, col) {
+        if (selectedPieceIndex === null || !currentPieces[selectedPieceIndex]) return;
+
+        const piece = currentPieces[selectedPieceIndex];
+        const shape = piece.shape;
+        const rows = shape.length;
+        const cols = shape[0].length;
+
+        let canPlace = true;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (shape[r][c] === 1) {
+                    let targetR = row + r;
+                    let targetC = col + c;
+                    if (targetR >= 8 || targetC >= 8 || board[targetR][targetC] !== null) {
+                        canPlace = false;
+                    }
+                }
+            }
+        }
+
+        if (canPlace) {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (shape[r][c] === 1) {
+                        board[row + r][col + c] = piece.member.img;
+                    }
+                }
+            }
+
+            score += rows * cols * 10;
+            scoreElement.textContent = score;
+
+            currentPieces[selectedPieceIndex] = null;
+            selectedPieceIndex = null;
+            document.querySelectorAll(".piece-slot").forEach(s => s.style.border = "none");
+
+            checkAndClearLines();
+            renderBoard();
+            renderPieces();
+
+            if (currentPieces.every(p => p === null)) {
+                generateNewPieces();
+            }
+        }
+    }
+
+    function checkAndClearLines() {
+        let rowsToClear = [];
+        let colsToClear = [];
+
+        for (let r = 0; r < 8; r++) {
+            if (board[r].every(cell => cell !== null)) {
+                rowsToClear.push(r);
+            }
+        }
+
+        for (let c = 0; c < 8; c++) {
+            let colFull = true;
+            for (let r = 0; r < 8; r++) {
+                if (board[r][c] === null) {
+                    colFull = false;
+                    break;
+                }
+            }
+            if (colFull) colsToClear.push(c);
+        }
+
+        rowsToClear.forEach(r => {
+            for (let c = 0; c < 8; c++) board[r][c] = null;
+            score += 100;
+        });
+
+        colsToClear.forEach(c => {
+            for (let r = 0; r < 8; r++) board[r][c] = null;
+            score += 100;
+        });
+
+        scoreElement.textContent = score;
+    }
+
+    function checkGameOver() {
+        let possibleMoves = 0;
+        currentPieces.forEach(piece => {
+            if (!piece) return;
+            const shape = piece.shape;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (canFitAt(shape, r, c)) possibleMoves++;
+                }
+            }
+        });
+
+        if (possibleMoves === 0 && currentPieces.some(p => p !== null)) {
+            if (backgroundAudio) backgroundAudio.pause();
+            finalScoreElement.textContent = score;
+            gameoverScreen.classList.remove("hidden");
+        }
+    }
+
+    function canFitAt(shape, startR, startC) {
+        const rows = shape.length;
+        const cols = shape[0].length;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (shape[r][c] === 1) {
+                    let tr = startR + r;
+                    let tc = startC + c;
+                    if (tr >= 8 || tc >= 8 || board[tr][tc] !== null) return false;
+                }
+            }
+        }
+        return true;
+  
+</script>
+</body>
+</html>
+ 
