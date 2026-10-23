@@ -1,427 +1,456 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Crush Block Blast</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neonPink: '#e94560',
+                        neonPurple: '#810ca8',
+                        neonBlue: '#4eacc5',
+                        darkBg: '#0f1020',
+                        cardBg: '#16162c',
+                        gridBg: '#111122',
+                        cellBg: '#1a1a38',
+                    },
+                    boxShadow: {
+                        neon: '0 0 20px rgba(233, 69, 96, 0.4)',
+                        glow: '0 0 10px rgba(78, 172, 197, 0.6)',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         * {
-            box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            margin: 0;
-            padding: 0;
+            touch-action: manipulation;
         }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+        body {
             background-color: #0f1020;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
-        #game-container {
-            position: relative;
-            width: 100%;
-            max-width: 450px;
-            height: 100%;
-            max-height: 850px;
-            background: #16162c;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            box-shadow: 0 0 20px rgba(233, 69, 96, 0.3);
-            border-radius: 12px;
-        }
-        header {
-            text-align: center;
-            width: 100%;
-        }
-        h1 {
-            font-size: 22px;
-            color: #e94560;
-            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
-            letter-spacing: 1px;
-        }
-        .score-board {
-            font-size: 15px;
-            color: #a0a0c0;
-            margin-top: 4px;
-        }
-        #score {
-            color: #4eacc5;
-            font-weight: bold;
-        }
+        /* Custom scrollbar reset */
+        ::-webkit-scrollbar { display: none; }
         
-        #board {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            gap: 4px;
-            width: 320px;
-            height: 320px;
-            background: #111122;
-            padding: 6px;
-            border-radius: 8px;
+        /* Grid Animations & Glows */
+        .neon-border {
             border: 2px solid #2a2a4e;
+            box-shadow: 0 0 12px rgba(42, 42, 78, 0.6);
         }
-        .cell {
-            background: #1a1a38;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .slot-selected {
+            border: 2px solid #e94560 !important;
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.8) !important;
+            transform: scale(1.03);
         }
-
-        #pieces-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            width: 100%;
-            height: 130px;
-            background: #111122;
-            border-radius: 10px;
-            padding: 10px;
-            border: 2px solid #2a2a4e;
+        .cell-hover {
+            background-color: rgba(233, 69, 96, 0.25) !important;
+            border: 1px dashed #e94560;
         }
-        .piece-slot {
-            width: 85px;
-            height: 85px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            transition: transform 0.1s;
-        }
-        .piece-slot:active {
-            transform: scale(0.95);
-        }
-        .mini-grid {
-            display: grid;
-            gap: 2px;
-        }
-        .mini-cell {
-            width: 18px;
-            height: 18px;
-            background: #2a2a4e;
-            border-radius: 3px;
-        }
-        .mini-cell.filled {
-            background: var(--piece-color);
-        }
-
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 15, 26, 0.96);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 20;
-            padding: 20px;
-            text-align: center;
-        }
-        .hidden {
-            display: none !important;
-        }
-        .btn {
-            background: linear-gradient(45deg, #e94560, #0f3460);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
-            margin-top: 15px;
-        }
-        .member-info {
-            font-size: 12px;
-            color: #8888aa;
-            margin-bottom: 15px;
-            max-width: 300px;
-            line-height: 1.4;
+        .cell-invalid {
+            background-color: rgba(255, 77, 77, 0.3) !important;
         }
     </style>
 </head>
-<body>
+<body class="w-full h-screen overflow-hidden flex items-center justify-center p-2 sm:p-4 text-white">
 
-<div id="game-container">
-    <header>
-        <h1>CRUSH BLOCK BLAST</h1>
-        <div class="score-board">Skor: <span id="score">0</span></div>
-    </header>
+    <!-- Main Game Frame -->
+    <div id="game-container" class="relative w-full max-w-md h-full max-h-[850px] bg-cardBg rounded-2xl p-4 flex flex-col justify-between items-center shadow-neon border border-gray-800">
 
-    <div id="board"></div>
+        <!-- Top Header -->
+        <header class="w-full text-center py-2 flex flex-col items-center">
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-wider text-neonPink drop-shadow-[0_0_10px_rgba(233,69,96,0.6)]">
+                CRUSH BLOCK BLAST
+            </h1>
+            <div class="flex justify-between items-center w-full max-w-xs mt-3 px-4 py-2 bg-gridBg rounded-xl border border-gray-800">
+                <div class="text-xs uppercase tracking-widest text-gray-400">SKOR</div>
+                <div id="score" class="text-2xl font-bold text-neonBlue drop-shadow-[0_0_8px_rgba(78,172,197,0.5)]">0</div>
+            </div>
+        </header>
 
-    <div id="pieces-container">
-        <div class="piece-slot" id="slot-0"></div>
-        <div class="piece-slot" id="slot-1"></div>
-        <div class="piece-slot" id="slot-2"></div>
+        <!-- 8x8 Main Playing Board -->
+        <div id="board" class="grid grid-cols-8 grid-rows-8 gap-1 w-[310px] h-[310px] sm:w-[340px] sm:h-[340px] bg-gridBg p-2 rounded-xl neon-border transition-all">
+            <!-- 64 cells generated dynamically -->
+        </div>
+
+        <!-- Bottom Piece Selection Dock -->
+        <div class="w-full flex flex-col items-center">
+            <div class="text-xs text-gray-400 mb-2">Aşağıdan bir blok seçip tahtaya dokun!</div>
+            <div id="pieces-container" class="w-full h-28 bg-gridBg rounded-xl p-2 flex justify-around items-center border border-gray-800">
+                <div class="piece-slot w-24 h-24 bg-cellBg/40 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200" id="slot-0"></div>
+                <div class="piece-slot w-24 h-24 bg-cellBg/40 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200" id="slot-1"></div>
+                <div class="piece-slot w-24 h-24 bg-cellBg/40 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200" id="slot-2"></div>
+            </div>
+        </div>
+
+        <!-- Start / Main Menu Screen Overlay -->
+        <div id="menu-screen" class="absolute inset-0 bg-darkBg/95 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center p-6 text-center z-30">
+            <h1 class="text-3xl font-extrabold text-neonPink drop-shadow-[0_0_12px_rgba(233,69,96,0.8)] mb-2">
+                CRUSH BLOCK BLAST
+            </h1>
+            <p class="text-sm text-gray-300 max-w-xs mb-6">
+                Crush grubunun 7 üyesinin yüzleriyle blokları diz, satırları patlat ve yüksek skora ulaş!
+            </p>
+            <div class="grid grid-cols-4 gap-2 mb-6 max-w-xs">
+                <!-- Group member previews -->
+                <div class="flex flex-col items-center"><div class="w-10 h-10 rounded-full overflow-hidden bg-purple-900 border border-neonPink flex items-center justify-center text-xs font-bold text-pink-300">Efe</div><span class="text-[10px] mt-1 text-gray-400">Efe</span></div>
+                <div class="flex flex-col items-center"><div class="w-10 h-10 rounded-full overflow-hidden bg-purple-900 border border-neonPink flex items-center justify-center text-xs font-bold text-pink-300">Arda</div><span class="text-[10px] mt-1 text-gray-400">Arda</span></div>
+                <div class="flex flex-col items-center"><div class="w-10 h-10 rounded-full overflow-hidden bg-purple-900 border border-neonPink flex items-center justify-center text-xs font-bold text-pink-300">Batu</div><span class="text-[10px] mt-1 text-gray-400">Batu</span></div>
+                <div class="flex flex-col items-center"><div class="w-10 h-10 rounded-full overflow-hidden bg-purple-900 border border-neonPink flex items-center justify-center text-xs font-bold text-pink-300">Barış</div><span class="text-[10px] mt-1 text-gray-400">Barış</span></div>
+            </div>
+            <button id="start-btn" class="px-8 py-3 bg-gradient-to-r from-neonPink to-neonPurple hover:from-pink-600 hover:to-purple-800 text-white font-bold rounded-full shadow-lg hover:shadow-neon transition-all duration-300 transform active:scale-95">
+                OYUNA BAŞLA
+            </button>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="gameover-screen" class="absolute inset-0 bg-darkBg/95 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center p-6 text-center z-30 hidden">
+            <h2 class="text-3xl font-black text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.7)] mb-2">HAMLE KALMADI!</h2>
+            <p class="text-gray-400 text-sm mb-4">Harika bir performans gösterdin!</p>
+            <div class="bg-gridBg px-6 py-4 rounded-xl border border-gray-800 mb-6">
+                <div class="text-xs text-gray-400 mb-1">TOPLAM SKOR</div>
+                <div id="final-score" class="text-3xl font-black text-neonBlue">0</div>
+            </div>
+            <button id="restart-btn" class="px-8 py-3 bg-gradient-to-r from-neonPink to-neonPurple hover:from-pink-600 hover:to-purple-800 text-white font-bold rounded-full shadow-lg hover:shadow-neon transition-all duration-300 transform active:scale-95">
+                TEKRAR OYNA
+            </button>
+        </div>
+
     </div>
 
-    <div id="menu-screen" class="screen">
-        <h1 style="font-size: 26px; margin-bottom: 8px;">CRUSH BLOCK BLAST</h1>
-        <p class="subtitle" style="margin-bottom: 15px;">7 üyeli Crush ekibinin bulmacası!</p>
-        <div class="member-info">Blokları tahtaya yerleştir, satır ve sütunları patlatarak puanları topla!</div>
-        <button class="btn" id="start-btn">OYUNA BAŞLA</button>
-    </div>
+    <!-- Game Logic Script -->
+    <script>
+        // --- 1. MEMBER DATA & SAFE FALLBACKS ---
+        // Includes original uploaded file names with fallbacks so the game NEVER crashes or freezes if images fail
+        const MEMBERS = [
+            { name: "Efe", color: "#e94560", img: "32232683813cb0908224ba7baadf1f28.jpg" },
+            { name: "Arda", color: "#0f3460", img: "0baeaaac22cb5c8d25f379ac1b5c6780.jpg" },
+            { name: "Batu", color: "#e5b8f4", img: "abebcc0ec43891eba8290da100603d77.jpg" },
+            { name: "Barış", color: "#810ca8", img: "080be3d28e7d3be288b62f6a57a207d3.jpg" },
+            { name: "Oğuzhan", color: "#2d033b", img: "HVVk-_LXkAA4hxd(1).jpg" },
+            { name: "Milan", color: "#c0392b", img: "30c5e7b1e5d1220a362e9c17fe70e130.jpg" },
+            { name: "Barış", color: "#27ae60", img: "87b3cfb6f7b6e696ca4ccb8f576b151c.jpg" }
+        ];
 
-    <div id="gameover-screen" class="screen hidden">
-        <h1 style="color: #ff4d4d; font-size: 26px;">HAMLE KALMADI!</h1>
-        <p class="subtitle">Oyun Bitti</p>
-        <p style="font-size: 20px; margin-bottom: 15px;">Toplam Skor: <span id="final-score" style="color: #4eacc5; font-weight: bold;">0</span></p>
-        <button class="btn" id="restart-btn">TEKRAR OYNA</button>
-    </div>
-</div>
+        // --- 2. PUZZLE SHAPES DEFINITION ---
+        const SHAPES = [
+            [[1]],                                 // Single Dot
+            [[1, 1]],                              // 2 Horizontal
+            [[1], [1]],                            // 2 Vertical
+            [[1, 1, 1]],                           // 3 Horizontal
+            [[1], [1], [1]],                       // 3 Vertical
+            [[1, 1], [1, 1]],                      // 2x2 Square
+            [[1, 1, 1], [1, 1, 1], [1, 1, 1]],     // 3x3 Block
+            [[1, 1], [1, 0]],                      // Small L
+            [[1, 1, 1], [0, 1, 0]],                // T-Shape
+            [[1, 1, 1], [1, 0, 0]],                // Big L
+        ];
 
-<script>
-    const MEMBERS = [
-        { name: "Efe", color: "#e94560" },
-        { name: "Arda", color: "#0f3460" },
-        { name: "Batu", color: "#e5b8f4" },
-        { name: "Barış", color: "#810ca8" },
-        { name: "Oğuzhan", color: "#2d033b" },
-        { name: "Milan", color: "#c0392b" },
-        { name: "Barış", color: "#27ae60" }
-    ];
+        // --- 3. GAME STATE ---
+        let board = Array(8).fill(null).map(() => Array(8).fill(null));
+        let score = 0;
+        let currentPieces = [null, null, null];
+        let selectedPieceIndex = null;
 
-    const SHAPES = [
-        [[1]], 
-        [[1, 1]], 
-        [[1], [1]], 
-        [[1, 1], [1, 1]], 
-        [[1, 1, 1]], 
-        [[1], [1], [1]], 
-        [[1, 1], [1, 0]], 
-    ];
+        // --- 4. DOM ELEMENTS ---
+        const boardElement = document.getElementById("board");
+        const scoreElement = document.getElementById("score");
+        const finalScoreElement = document.getElementById("final-score");
+        const menuScreen = document.getElementById("menu-screen");
+        const gameoverScreen = document.getElementById("gameover-screen");
+        const startBtn = document.getElementById("start-btn");
+        const restartBtn = document.getElementById("restart-btn");
 
-    let board = Array(8).fill(null).map(() => Array(8).fill(null));
-    let score = 0;
-    let currentPieces = [null, null, null];
-    let selectedPieceIndex = null;
+        // --- 5. INITIALIZATION ---
+        startBtn.addEventListener('click', () => {
+            menuScreen.classList.add("hidden");
+            initGame();
+        });
 
-    const boardElement = document.getElementById("board");
-    const scoreElement = document.getElementById("score");
-    const finalScoreElement = document.getElementById("final-score");
-    const menuScreen = document.getElementById("menu-screen");
-    const gameoverScreen = document.getElementById("gameover-screen");
-    const startBtn = document.getElementById("start-btn");
-    const restartBtn = document.getElementById("restart-btn");
+        restartBtn.addEventListener('click', () => {
+            gameoverScreen.classList.add("hidden");
+            initGame();
+        });
 
-    startBtn.onclick = () => {
-        menuScreen.classList.add("hidden");
-        initGame();
-    };
-
-    restartBtn.onclick = () => {
-        gameoverScreen.classList.add("hidden");
-        initGame();
-    };
-
-    function initGame() {
-        board = Array(8).fill(null).map(() => Array(8).fill(null));
-        score = 0;
-        scoreElement.textContent = score;
-        generateNewPieces();
-        renderBoard();
-    }
-
-    function renderBoard() {
-        boardElement.innerHTML = "";
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const cell = document.createElement("div");
-                cell.className = "cell";
-                cell.dataset.row = r;
-                cell.dataset.col = c;
-
-                if (board[r][c]) {
-                    cell.style.backgroundColor = board[r][c];
-                }
-
-                cell.onclick = () => handleCellClick(r, c);
-                boardElement.appendChild(cell);
-            }
+        function initGame() {
+            board = Array(8).fill(null).map(() => Array(8).fill(null));
+            score = 0;
+            scoreElement.textContent = score;
+            selectedPieceIndex = null;
+            generateNewPieces();
+            renderBoard();
         }
-    }
 
-    function generateNewPieces() {
-        for (let i = 0; i < 3; i++) {
-            const randomShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-            const randomMember = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
-            currentPieces[i] = {
-                shape: randomShape,
-                color: randomMember.color
-            };
-        }
-        renderPieces();
-        checkGameOver();
-    }
+        // --- 6. RENDER MAIN BOARD ---
+        function renderBoard() {
+            boardElement.innerHTML = "";
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell relative rounded bg-cellBg flex items-center justify-center overflow-hidden transition-all duration-150 cursor-pointer";
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
 
-    function renderPieces() {
-        for (let i = 0; i < 3; i++) {
-            const slot = document.getElementById(`slot-${i}`);
-            slot.innerHTML = "";
-            const pieceData = currentPieces[i];
-
-            if (!pieceData) continue;
-
-            const rows = pieceData.shape.length;
-            const cols = pieceData.shape[0].length;
-
-            const miniGrid = document.createElement("div");
-            miniGrid.className = "mini-grid";
-            miniGrid.style.gridTemplateColumns = `repeat(${cols}, 18px)`;
-            miniGrid.style.gridTemplateRows = `repeat(${rows}, 18px)`;
-
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    const miniCell = document.createElement("div");
-                    miniCell.className = "mini-cell";
-                    if (pieceData.shape[r][c] === 1) {
-                        miniCell.classList.add("filled");
-                        miniCell.style.backgroundColor = pieceData.color;
+                    const cellData = board[r][c];
+                    if (cellData) {
+                        cell.appendChild(createMemberImageOrFallback(cellData.member));
                     }
-                    miniGrid.appendChild(miniCell);
+
+                    // Hover effects for easy mobile / desktop placement feedback
+                    cell.addEventListener("mouseenter", () => handleCellHover(r, c, true));
+                    cell.addEventListener("mouseleave", () => handleCellHover(r, c, false));
+                    cell.addEventListener("click", () => handleCellClick(r, c));
+
+                    boardElement.appendChild(cell);
                 }
             }
-
-            slot.appendChild(miniGrid);
-            slot.onclick = () => {
-                selectedPieceIndex = i;
-                document.querySelectorAll(".piece-slot").forEach(s => s.style.border = "none");
-                slot.style.border = "2px solid #e94560";
-            };
         }
-    }
 
-    function handleCellClick(row, col) {
-        if (selectedPieceIndex === null || !currentPieces[selectedPieceIndex]) return;
+        // --- 7. HELPER: CREATE IMAGE WITH CRASH-PROOF FALLBACK ---
+        function createMemberImageOrFallback(member) {
+            const container = document.createElement("div");
+            container.className = "w-full h-full flex items-center justify-center font-bold text-xs text-white uppercase select-none rounded";
+            container.style.backgroundColor = member.color;
 
-        const piece = currentPieces[selectedPieceIndex];
-        const shape = piece.shape;
-        const rows = shape.length;
-        const cols = shape[0].length;
+            const img = document.createElement("img");
+            img.className = "w-full h-full object-cover rounded";
+            img.alt = member.name;
+            img.src = encodeURIComponent(member.img);
 
-        let canPlace = true;
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                if (shape[r][c] === 1) {
-                    let targetR = row + r;
-                    let targetC = col + c;
-                    if (targetR >= 8 || targetC >= 8 || board[targetR][targetC] !== null) {
-                        canPlace = false;
+            // Fallback if image fails to load (shows colored tile with member name)
+            img.onerror = () => {
+                img.style.display = "none";
+                container.textContent = member.name;
+            };
+
+            container.appendChild(img);
+            return container;
+        }
+
+        // --- 8. PIECE GENERATION & RENDERING ---
+        function generateNewPieces() {
+            for (let i = 0; i < 3; i++) {
+                const randomShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+                const randomMember = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
+                currentPieces[i] = {
+                    shape: randomShape,
+                    member: randomMember
+                };
+            }
+            renderPieces();
+            checkGameOver();
+        }
+
+        function renderPieces() {
+            for (let i = 0; i < 3; i++) {
+                const slot = document.getElementById(`slot-${i}`);
+                slot.innerHTML = "";
+                slot.classList.remove("slot-selected");
+
+                const pieceData = currentPieces[i];
+                if (!pieceData) continue;
+
+                const rows = pieceData.shape.length;
+                const cols = pieceData.shape[0].length;
+
+                const miniGrid = document.createElement("div");
+                miniGrid.className = "grid gap-1 pointer-events-none";
+                miniGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+                miniGrid.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const miniCell = document.createElement("div");
+                        miniCell.className = "w-4 h-4 sm:w-5 sm:h-5 rounded overflow-hidden flex items-center justify-center";
+                        if (pieceData.shape[r][c] === 1) {
+                            miniCell.appendChild(createMemberImageOrFallback(pieceData.member));
+                        } else {
+                            miniCell.style.opacity = "0";
+                        }
+                        miniGrid.appendChild(miniCell);
                     }
                 }
+
+                slot.appendChild(miniGrid);
+
+                // Slot selection click event
+                slot.onclick = () => {
+                    if (!currentPieces[i]) return;
+                    selectedPieceIndex = i;
+                    document.querySelectorAll(".piece-slot").forEach(s => s.classList.remove("slot-selected"));
+                    slot.classList.add("slot-selected");
+                };
             }
         }
 
-        if (canPlace) {
+        // --- 9. INTERACTION HANDLERS ---
+        function handleCellHover(row, col, isEntering) {
+            if (selectedPieceIndex === null || !currentPieces[selectedPieceIndex]) return;
+
+            const piece = currentPieces[selectedPieceIndex];
+            const shape = piece.shape;
+            const rows = shape.length;
+            const cols = shape[0].length;
+            const canPlace = canFitAt(shape, row, col);
+
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
                     if (shape[r][c] === 1) {
-                        board[row + r][col + c] = piece.color;
+                        const targetR = row + r;
+                        const targetC = col + c;
+                        if (targetR < 8 && targetC < 8) {
+                            const targetIndex = targetR * 8 + targetC;
+                            const cell = boardElement.children[targetIndex];
+                            if (cell) {
+                                if (isEntering) {
+                                    cell.classList.add(canPlace ? "cell-hover" : "cell-invalid");
+                                } else {
+                                    cell.classList.remove("cell-hover", "cell-invalid");
+                                }
+                            }
+                        }
                     }
                 }
             }
-
-            score += rows * cols * 10;
-            scoreElement.textContent = score;
-
-            currentPieces[selectedPieceIndex] = null;
-            selectedPieceIndex = null;
-            document.querySelectorAll(".piece-slot").forEach(s => s.style.border = "none");
-
-            checkAndClearLines();
-            renderBoard();
-            renderPieces();
-
-            if (currentPieces.every(p => p === null)) {
-                generateNewPieces();
-            }
-        }
-    }
-
-    function checkAndClearLines() {
-        let rowsToClear = [];
-        let colsToClear = [];
-
-        for (let r = 0; r < 8; r++) {
-            if (board[r].every(cell => cell !== null)) {
-                rowsToClear.push(r);
-            }
         }
 
-        for (let c = 0; c < 8; c++) {
-            let colFull = true;
-            for (let r = 0; r < 8; r++) {
-                if (board[r][c] === null) {
-                    colFull = false;
-                    break;
-                }
-            }
-            if (colFull) colsToClear.push(c);
-        }
+        function handleCellClick(row, col) {
+            if (selectedPieceIndex === null || !currentPieces[selectedPieceIndex]) return;
 
-        rowsToClear.forEach(r => {
-            for (let c = 0; c < 8; c++) board[r][c] = null;
-            score += 100;
-        });
-
-        colsToClear.forEach(c => {
-            for (let r = 0; r < 8; r++) board[r][c] = null;
-            score += 100;
-        });
-
-        scoreElement.textContent = score;
-    }
-
-    function checkGameOver() {
-        let possibleMoves = 0;
-        currentPieces.forEach(piece => {
-            if (!piece) return;
+            const piece = currentPieces[selectedPieceIndex];
             const shape = piece.shape;
+
+            if (canFitAt(shape, row, col)) {
+                // Clear any hover highlights
+                clearHoverStyles();
+
+                // Place piece onto board
+                const rows = shape.length;
+                const cols = shape[0].length;
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        if (shape[r][c] === 1) {
+                            board[row + r][col + c] = { member: piece.member };
+                        }
+                    }
+                }
+
+                // Add placement score
+                score += (rows * cols) * 10;
+                scoreElement.textContent = score;
+
+                // Remove used piece from slot
+                currentPieces[selectedPieceIndex] = null;
+                selectedPieceIndex = null;
+
+                // Check completed lines & update view
+                checkAndClearLines();
+                renderBoard();
+                renderPieces();
+
+                // Generate new pieces if all 3 are placed
+                if (currentPieces.every(p => p === null)) {
+                    generateNewPieces();
+                } else {
+                    checkGameOver();
+                }
+            }
+        }
+
+        function clearHoverStyles() {
+            Array.from(boardElement.children).forEach(cell => {
+                cell.classList.remove("cell-hover", "cell-invalid");
+            });
+        }
+
+        // --- 10. LINE CLEARING LOGIC ---
+        function checkAndClearLines() {
+            let rowsToClear = [];
+            let colsToClear = [];
+
+            // Check full horizontal rows
             for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    if (canFitAt(shape, r, c)) possibleMoves++;
+                if (board[r].every(cell => cell !== null)) {
+                    rowsToClear.push(r);
                 }
             }
-        });
 
-        if (possibleMoves === 0 && currentPieces.some(p => p !== null)) {
-            finalScoreElement.textContent = score;
-            gameoverScreen.classList.remove("hidden");
-        }
-    }
-
-    function canFitAt(shape, startR, startC) {
-        const rows = shape.length;
-        const cols = shape[0].length;
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                if (shape[r][c] === 1) {
-                    let tr = startR + r;
-                    let tc = startC + c;
-                    if (tr >= 8 || tc >= 8 || board[tr][tc] !== null) return false;
+            // Check full vertical columns
+            for (let c = 0; c < 8; c++) {
+                let colFull = true;
+                for (let r = 0; r < 8; r++) {
+                    if (board[r][c] === null) {
+                        colFull = false;
+                        break;
+                    }
                 }
+                if (colFull) colsToClear.push(c);
+            }
+
+            // Perform clearing
+            rowsToClear.forEach(r => {
+                for (let c = 0; c < 8; c++) board[r][c] = null;
+            });
+
+            colsToClear.forEach(c => {
+                for (let r = 0; r < 8; r++) board[r][c] = null;
+            });
+
+            // Bonus score for clears & combos
+            const totalClears = rowsToClear.length + colsToClear.length;
+            if (totalClears > 0) {
+                score += totalClears * 100 + (totalClears - 1) * 50;
+                scoreElement.textContent = score;
             }
         }
-        return true;
-    }
-</script>
+
+        // --- 11. GAME OVER CHECKING ---
+        function canFitAt(shape, startR, startC) {
+            const rows = shape.length;
+            const cols = shape[0].length;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (shape[r][c] === 1) {
+                        const tr = startR + r;
+                        const tc = startC + c;
+                        if (tr >= 8 || tc >= 8 || board[tr][tc] !== null) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        function checkGameOver() {
+            let possibleMoves = 0;
+            currentPieces.forEach(piece => {
+                if (!piece) return;
+                const shape = piece.shape;
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (canFitAt(shape, r, c)) {
+                            possibleMoves++;
+                        }
+                    }
+                }
+            });
+
+            // Trigger game over if remaining pieces cannot fit anywhere
+            if (possibleMoves === 0 && currentPieces.some(p => p !== null)) {
+                finalScoreElement.textContent = score;
+                gameoverScreen.classList.remove("hidden");
+            }
+        }
+    </script>
 </body>
 </html>
+```
