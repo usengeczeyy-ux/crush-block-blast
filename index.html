@@ -40,25 +40,40 @@
             border-radius: 12px;
         }
         header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             width: 100%;
+            padding: 0 5px;
         }
         h1 {
-            font-size: 22px;
+            font-size: 20px;
             color: #e94560;
             text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
             letter-spacing: 1px;
         }
         .score-board {
-            font-size: 15px;
+            font-size: 14px;
             color: #a0a0c0;
-            margin-top: 4px;
         }
         #score {
             color: #4eacc5;
             font-weight: bold;
         }
         
+        /* MÜZİK KONTROL BUTONU (SAĞ ÜST) */
+        #music-toggle-btn {
+            background: #0f3460;
+            border: 1px solid #e94560;
+            color: white;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 8px rgba(233, 69, 96, 0.4);
+        }
+
         #board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
@@ -199,8 +214,12 @@
 
 <div id="game-container">
     <header>
-        <h1>CRUSH BLOCK BLAST</h1>
-        <div class="score-board">Skor: <span id="score">0</span></div>
+        <div>
+            <h1>CRUSH BLOCK BLAST</h1>
+            <div class="score-board">Skor: <span id="score">0</span></div>
+        </div>
+        <!-- Ses Aç/Kapat Butonu -->
+        <button id="music-toggle-btn">🔊 Müzik: Açık</button>
     </header>
 
     <div id="board"></div>
@@ -220,7 +239,6 @@
         <div class="music-selector">
             <div class="music-option active" data-index="0">🎵 CRUSH! (Resmi Müzik)</div>
             <div class="music-option" data-index="1">🎶 BENİM OLSANA</div>
-            <div class="music-option" data-index="-1">🔇 Sessiz Oyna</div>
         </div>
 
         <button class="btn" id="start-btn">OYUNA BAŞLA</button>
@@ -252,6 +270,7 @@
 
     let selectedMusicIndex = 0;
     let backgroundAudio = null;
+    let isMusicMuted = false;
 
     const SHAPES = [
         [[1]], 
@@ -275,6 +294,7 @@
     const gameoverScreen = document.getElementById("gameover-screen");
     const startBtn = document.getElementById("start-btn");
     const restartBtn = document.getElementById("restart-btn");
+    const musicToggleBtn = document.getElementById("music-toggle-btn");
 
     const musicOptions = document.querySelectorAll(".music-option");
     musicOptions.forEach(opt => {
@@ -284,6 +304,18 @@
             selectedMusicIndex = parseInt(opt.dataset.index);
         };
     });
+
+    // Ses Aç/Kapat Butonuna Basıldığında
+    musicToggleBtn.onclick = () => {
+        isMusicMuted = !isMusicMuted;
+        if (isMusicMuted) {
+            musicToggleBtn.textContent = "🔇 Müzik: Kapalı";
+            if (backgroundAudio) backgroundAudio.pause();
+        } else {
+            musicToggleBtn.textContent = "🔊 Müzik: Açık";
+            playSelectedMusic();
+        }
+    };
 
     startBtn.onclick = () => {
         menuScreen.classList.add("hidden");
@@ -298,23 +330,22 @@
     };
 
     function playSelectedMusic() {
+        if (isMusicMuted) return;
+
         if (backgroundAudio) {
             backgroundAudio.pause();
             backgroundAudio = null;
         }
-
-        if (selectedMusicIndex < 0) return; // Sessiz mod
 
         try {
             const track = MUSIC_LIST[selectedMusicIndex];
             backgroundAudio = new Audio(encodeURIComponent(track.file));
             backgroundAudio.loop = true;
             
-            // Güvenli Oynatma: Ses yüklenemezse bile oyunu kilitlemez
             let promise = backgroundAudio.play();
             if (promise !== undefined) {
                 promise.catch(error => {
-                    console.log("Müzik otomatik başlatılamadı veya dosya bulunamadı:", error);
+                    console.log("Tarayıcı otomatik oynatmayı engelledi, butona basılması bekleniyor.", error);
                 });
             }
         } catch (e) {
