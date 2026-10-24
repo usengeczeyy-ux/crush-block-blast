@@ -1,671 +1,671 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Crush Block Blast</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            margin: 0;
-            padding: 0;
-            touch-action: manipulation;
-        }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            /* Yüklediğin dosya adı varsayılan arka plan yapıldı */
-            background: #0f1020 url('a9c53d190bd175a8146feaf60239d335.jpg') center/cover no-repeat;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Crush Block Blast</title>
+<style>
+* {
+box-sizing: border-box;
+user-select: none;
+-webkit-user-select: none;
+margin: 0;
+padding: 0;
+touch-action: manipulation;
+}
+body, html {
+width: 100%;
+height: 100%;
+overflow: hidden;
+font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+color: #fff;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+/* Yüklediğin dosya adı varsayılan arka plan yapıldı */
+background: #0f1020 url('a9c53d190bd175a8146feaf60239d335.jpg') center/cover no-repeat;
+}
 
-        #game-container {
-            position: relative;
-            width: 100%;
-            max-width: 450px;
-            height: 100%;
-            max-height: 850px;
-            background: rgba(22, 22, 44, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(233, 69, 96, 0.4);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+#game-container {
+position: relative;
+width: 100%;
+max-width: 450px;
+height: 100%;
+max-height: 850px;
+background: rgba(22, 22, 44, 0.85);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: space-between;
+padding: 15px;
+box-shadow: 0 0 30px rgba(0, 0, 0, 0.7), 0 0 15px rgba(233, 69, 96, 0.4);
+border-radius: 16px;
+border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            padding: 0 5px;
-            z-index: 5;
-        }
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+width: 100%;
+padding: 0 5px;
+z-index: 5;
+}
 
-        h1 {
-            font-size: 20px;
-            color: #e94560;
-            text-shadow: 0 0 10px rgba(233, 69, 96, 0.6);
-            letter-spacing: 1px;
-            font-weight: 800;
-        }
+h1 {
+font-size: 20px;
+color: #e94560;
+text-shadow: 0 0 10px rgba(233, 69, 96, 0.6);
+letter-spacing: 1px;
+font-weight: 800;
+}
 
-        .score-board {
-            font-size: 14px;
-            color: #a0a0c0;
-        }
+.score-board {
+font-size: 14px;
+color: #a0a0c0;
+}
 
-        #score {
-            color: #4eacc5;
-            font-weight: bold;
-            font-size: 16px;
-        }
+#score {
+color: #4eacc5;
+font-weight: bold;
+font-size: 16px;
+}
 
-        #music-toggle-btn {
-            background: #0f3460;
-            border: 1px solid #e94560;
-            color: white;
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 0 8px rgba(233, 69, 96, 0.4);
-        }
+#music-toggle-btn {
+background: #0f3460;
+border: 1px solid #e94560;
+color: white;
+padding: 6px 12px;
+font-size: 12px;
+border-radius: 15px;
+cursor: pointer;
+font-weight: bold;
+box-shadow: 0 0 8px rgba(233, 69, 96, 0.4);
+}
 
-        /* Konuşma Kutusu (Speech Bubble) */
-        #speech-bubble {
-            position: absolute;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%) scale(0);
-            background: linear-gradient(135deg, #e94560, #0f3460);
-            border: 2px solid #fff;
-            border-radius: 20px;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            z-index: 50;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            max-width: 90%;
-        }
+/* Konuşma Kutusu (Speech Bubble) */
+#speech-bubble {
+position: absolute;
+top: 60px;
+left: 50%;
+transform: translateX(-50%) scale(0);
+background: linear-gradient(135deg, #e94560, #0f3460);
+border: 2px solid #fff;
+border-radius: 20px;
+padding: 8px 16px;
+display: flex;
+align-items: center;
+gap: 10px;
+box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+z-index: 50;
+transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+pointer-events: none;
+max-width: 90%;
+}
 
-        #speech-bubble.active {
-            transform: translateX(-50%) scale(1);
-        }
+#speech-bubble.active {
+transform: translateX(-50%) scale(1);
+}
 
-        #speech-bubble img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            object-fit: cover;
-        }
+#speech-bubble img {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+border: 2px solid #fff;
+object-fit: cover;
+}
 
-        #speech-bubble .text-container {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
+#speech-bubble .text-container {
+display: flex;
+flex-direction: column;
+text-align: left;
+}
 
-        #speech-bubble .member-name {
-            font-size: 11px;
-            font-weight: bold;
-            color: #ffd700;
-            text-transform: uppercase;
-        }
+#speech-bubble .member-name {
+font-size: 11px;
+font-weight: bold;
+color: #ffd700;
+text-transform: uppercase;
+}
 
-        #speech-bubble .member-message {
-            font-size: 13px;
-            font-weight: 700;
-            color: #ffffff;
-        }
+#speech-bubble .member-message {
+font-size: 13px;
+font-weight: 700;
+color: #ffffff;
+}
 
-        #board {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            grid-template-rows: repeat(8, 1fr);
-            gap: 3px;
-            width: 320px;
-            height: 320px;
-            background: rgba(17, 17, 34, 0.9);
-            padding: 6px;
-            border-radius: 12px;
-            border: 2px solid #2a2a4e;
-            position: relative;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-        }
+#board {
+display: grid;
+grid-template-columns: repeat(8, 1fr);
+grid-template-rows: repeat(8, 1fr);
+gap: 3px;
+width: 320px;
+height: 320px;
+background: rgba(17, 17, 34, 0.9);
+padding: 6px;
+border-radius: 12px;
+border: 2px solid #2a2a4e;
+position: relative;
+box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
 
-        .cell {
-            background: rgba(26, 26, 56, 0.8);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            transition: background-color 0.2s;
-        }
+.cell {
+background: rgba(26, 26, 56, 0.8);
+border-radius: 4px;
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+overflow: hidden;
+transition: background-color 0.2s;
+}
 
-        .cell.highlight {
-            background: rgba(233, 69, 96, 0.4) !important;
-            border: 1px solid #e94560;
-        }
+.cell.highlight {
+background: rgba(233, 69, 96, 0.4) !important;
+border: 1px solid #e94560;
+}
 
-        .cell img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 3px;
-        }
+.cell img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+border-radius: 3px;
+}
 
-        #pieces-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            width: 100%;
-            height: 120px;
-            background: rgba(17, 17, 34, 0.8);
-            border-radius: 12px;
-            padding: 10px;
-            border: 2px solid #2a2a4e;
-        }
+#pieces-container {
+display: flex;
+justify-content: space-around;
+align-items: center;
+width: 100%;
+height: 120px;
+background: rgba(17, 17, 34, 0.8);
+border-radius: 12px;
+padding: 10px;
+border: 2px solid #2a2a4e;
+}
 
-        .piece-slot {
-            width: 90px;
-            height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: grab;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            transition: transform 0.15s, border 0.15s;
-            touch-action: none;
-        }
+.piece-slot {
+width: 90px;
+height: 90px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: grab;
+background: rgba(255, 255, 255, 0.03);
+border-radius: 8px;
+transition: transform 0.15s, border 0.15s;
+touch-action: none;
+}
 
-        .piece-slot.selected {
-            border: 2px solid #e94560 !important;
-            background: rgba(233, 69, 96, 0.15);
-        }
+.piece-slot.selected {
+border: 2px solid #e94560 !important;
+background: rgba(233, 69, 96, 0.15);
+}
 
-        .mini-grid {
-            display: grid;
-            gap: 2px;
-            pointer-events: none;
-        }
+.mini-grid {
+display: grid;
+gap: 2px;
+pointer-events: none;
+}
 
-        .mini-cell {
-            width: 22px;
-            height: 22px;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
+.mini-cell {
+width: 22px;
+height: 22px;
+border-radius: 3px;
+display: flex;
+align-items: center;
+justify-content: center;
+overflow: hidden;
+}
 
-        .mini-cell img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+.mini-cell img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
 
-        /* Ekranlar */
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 15, 26, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 20px;
-            text-align: center;
-            border-radius: 16px;
-        }
+/* Ekranlar */
+.screen {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(15, 15, 26, 0.95);
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+z-index: 100;
+padding: 20px;
+text-align: center;
+border-radius: 16px;
+}
 
-        .hidden {
-            display: none !important;
-        }
+.hidden {
+display: none !important;
+}
 
-        .btn {
-            background: linear-gradient(45deg, #e94560, #0f3460);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
-            margin-top: 15px;
-            transition: transform 0.1s;
-        }
+.btn {
+background: linear-gradient(45deg, #e94560, #0f3460);
+color: white;
+border: none;
+padding: 12px 30px;
+font-size: 16px;
+font-weight: bold;
+border-radius: 25px;
+cursor: pointer;
+box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+margin-top: 15px;
+transition: transform 0.1s;
+}
 
-        .btn:active {
-            transform: scale(0.95);
-        }
+.btn:active {
+transform: scale(0.95);
+}
 
-        .music-selector {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            max-width: 280px;
-            margin-bottom: 10px;
-        }
+.music-selector {
+display: flex;
+flex-direction: column;
+gap: 8px;
+width: 100%;
+max-width: 280px;
+margin-bottom: 10px;
+}
 
-        .music-option {
-            background: #16213e;
-            border: 2px solid #0f3460;
-            padding: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: bold;
-        }
+.music-option {
+background: #16213e;
+border: 2px solid #0f3460;
+padding: 10px;
+border-radius: 10px;
+cursor: pointer;
+font-size: 13px;
+font-weight: bold;
+}
 
-        .music-option.active {
-            border-color: #e94560;
-            background: #0f3460;
-            box-shadow: 0 0 10px rgba(233, 69, 96, 0.4);
-        }
+.music-option.active {
+border-color: #e94560;
+background: #0f3460;
+box-shadow: 0 0 10px rgba(233, 69, 96, 0.4);
+}
 
-        #yt-player {
-            position: absolute;
-            width: 0;
-            height: 0;
-            opacity: 0;
-            pointer-events: none;
-        }
-    </style>
+#yt-player {
+position: absolute;
+width: 0;
+height: 0;
+opacity: 0;
+pointer-events: none;
+}
+</style>
 </head>
 <body>
 
 <div id="yt-player"></div>
 
 <div id="game-container">
-    <header>
-        <div>
-            <h1>CRUSH BLOCK BLAST</h1>
-            <div class="score-board">Skor: <span id="score">0</span></div>
-        </div>
-        <button id="music-toggle-btn">🔊 Müzik: Açık</button>
-    </header>
+<header>
+<div>
+<h1>CRUSH BLOCK BLAST</h1>
+<div class="score-board">Skor: <span id="score">0</span></div>
+</div>
+<button id="music-toggle-btn">🔊 Müzik: Açık</button>
+</header>
 
-    <!-- Tebrik Konuşma Balonu -->
-    <div id="speech-bubble">
-        <img id="bubble-img" src="" alt="Crush Üyesi">
-        <div class="text-container">
-            <span class="member-name" id="bubble-name">Efe</span>
-            <span class="member-message" id="bubble-msg">Harikasın Crusher!</span>
-        </div>
-    </div>
+<!-- Tebrik Konuşma Balonu -->
+<div id="speech-bubble">
+<img id="bubble-img" src="" alt="Crush Üyesi">
+<div class="text-container">
+<span class="member-name" id="bubble-name">Efe</span>
+<span class="member-message" id="bubble-msg">Harikasın Crusher!</span>
+</div>
+</div>
 
-    <div id="board"></div>
+<div id="board"></div>
 
-    <div id="pieces-container">
-        <div class="piece-slot" id="slot-0"></div>
-        <div class="piece-slot" id="slot-1"></div>
-        <div class="piece-slot" id="slot-2"></div>
-    </div>
+<div id="pieces-container">
+<div class="piece-slot" id="slot-0"></div>
+<div class="piece-slot" id="slot-1"></div>
+<div class="piece-slot" id="slot-2"></div>
+</div>
 
-    <!-- Başlangıç Menüsü -->
-    <div id="menu-screen" class="screen">
-        <h1 style="font-size: 26px; margin-bottom: 8px;">CRUSH BLOCK BLAST</h1>
-        <p style="margin-bottom: 15px; color: #a0a0c0; font-size: 14px;">7 üyeli Crush ekibinin bulmacası!</p>
-        
-        <div style="font-size: 12px; color: #aaa; margin-bottom: 10px;">Çalacak şarkıyı seç:</div>
-        
-        <div class="music-selector">
-            <div class="music-option active" data-index="0">🎵 CRUSH - CRUSH!</div>
-            <div class="music-option" data-index="1">🎶 CRUSH - BENİM OLSANA</div>
-        </div>
+<!-- Başlangıç Menüsü -->
+<div id="menu-screen" class="screen">
+<h1 style="font-size: 26px; margin-bottom: 8px;">CRUSH BLOCK BLAST</h1>
+<p style="margin-bottom: 15px; color: #a0a0c0; font-size: 14px;">7 üyeli Crush ekibinin bulmacası!</p>
 
-        <button class="btn" id="start-btn">OYUNA BAŞLA</button>
-    </div>
+<div style="font-size: 12px; color: #aaa; margin-bottom: 10px;">Çalacak şarkıyı seç:</div>
 
-    <!-- Oyun Bitti Ekranı -->
-    <div id="gameover-screen" class="screen hidden">
-        <h1 style="color: #ff4d4d; font-size: 26px;">HAMLE KALMADI!</h1>
-        <p style="color: #aaa; margin-top: 5px;">Oyun Bitti</p>
-        <p style="font-size: 20px; margin: 15px 0;">Toplam Skor: <span id="final-score" style="color: #4eacc5; font-weight: bold;">0</span></p>
-        <button class="btn" id="restart-btn">TEKRAR OYNA</button>
-    </div>
+<div class="music-selector">
+<div class="music-option active" data-index="0">🎵 CRUSH - CRUSH!</div>
+<div class="music-option" data-index="1">🎶 CRUSH - BENİM OLSANA</div>
+</div>
+
+<button class="btn" id="start-btn">OYUNA BAŞLA</button>
+</div>
+
+<!-- Oyun Bitti Ekranı -->
+<div id="gameover-screen" class="screen hidden">
+<h1 style="color: #ff4d4d; font-size: 26px;">HAMLE KALMADI!</h1>
+<p style="color: #aaa; margin-top: 5px;">Oyun Bitti</p>
+<p style="font-size: 20px; margin: 15px 0;">Toplam Skor: <span id="final-score" style="color: #4eacc5; font-weight: bold;">0</span></p>
+<button class="btn" id="restart-btn">TEKRAR OYNA</button>
+</div>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    const MEMBERS = [
-        { name: "Efe", img: "32232683813cb0908224ba7baadf1f28.jpg", color: "#e94560", msg: "Harikasın Crusher!" },
-        { name: "Arda", img: "0baeaaac22cb5c8d25f379ac1b5c6780.jpg", color: "#0f3460", msg: "Böyle devam et!" },
-        { name: "Batu", img: "abebcc0ec43891eba8290da100603d77.jpg", color: "#e5b8f4", msg: "Süper kombo!" },
-        { name: "Barış", img: "080be3d28e7d3be288b62f6a57a207d3.jpg", color: "#810ca8", msg: "Efsanevi hamle!" },
-        { name: "Oğuzhan", img: "HVVk-_LXkAA4hxd(1).jpg", color: "#2d033b", msg: "Mükemmel patlama!" },
-        { name: "Milan", img: "30c5e7b1e5d1220a362e9c17fe70e130.jpg", color: "#c0392b", msg: "Durdurulamıyorsun!" },
-        { name: "Barış", img: "87b3cfb6f7b6e696ca4ccb8f576b151c.jpg", color: "#27ae60", msg: "Muhteşem skor!" }
-    ];
+const MEMBERS = [
+{ name: "Arda", img: "32232683813cb0908224ba7baadf1f28.jpg", color: "#e94560", msg: "Lesssssgo!" },
+{ name: "Barış", img: "0baeaaac22cb5c8d25f379ac1b5c6780.jpg", color: "#0f3460", msg: "Agalarla balon patlatma işi aktı." },
+{ name: "Milan", img: "abebcc0ec43891eba8290da100603d77.jpg", color: "#e5b8f4", msg: "Süpersin homie!" },
+{ name: "Oğuzhan", img: "080be3d28e7d3be288b62f6a57a207d3.jpg", color: "#810ca8", msg: "Bir türk kahvesini hakettin." },
+{ name: "Batu", img: "HVVk-_LXkAA4hxd(1).jpg", color: "#2d033b", msg: "Küçük seninle gurur duyuyor!" },
+{ name: "Miraç", img: "30c5e7b1e5d1220a362e9c17fe70e130.jpg", color: "#c0392b", msg: "Ben bu skora gaklarım." },
+{ name: "Efe", img: "87b3cfb6f7b6e696ca4ccb8f576b151c.jpg", color: "#27ae60", msg: "Harikasın gank!" }
+ ];
 
-    const YOUTUBE_VIDEOS = ["aKGCXYX7jN8", "ZVVylrAkmfg"];
-    let selectedMusicIndex = 0;
-    let player = null;
-    let isMusicMuted = false;
-    let apiReady = false;
+const YOUTUBE_VIDEOS = ["aKGCXYX7jN8", "ZVVylrAkmfg"];
+let selectedMusicIndex = 0;
+let player = null;
+let isMusicMuted = false;
+let apiReady = false;
 
-    function onYouTubeIframeAPIReady() {
-        player = new YT.Player('yt-player', {
-            height: '0',
-            width: '0',
-            videoId: YOUTUBE_VIDEOS[selectedMusicIndex],
-            playerVars: { 'autoplay': 0, 'loop': 1, 'playlist': YOUTUBE_VIDEOS[selectedMusicIndex] },
-            events: { 'onReady': () => { apiReady = true; } }
-        });
-    }
+function onYouTubeIframeAPIReady() {
+player = new YT.Player('yt-player', {
+height: '0',
+width: '0',
+videoId: YOUTUBE_VIDEOS[selectedMusicIndex],
+playerVars: { 'autoplay': 0, 'loop': 1, 'playlist': YOUTUBE_VIDEOS[selectedMusicIndex] },
+events: { 'onReady': () => { apiReady = true; } }
+});
+}
 
-    const SHAPES = [
-        [[1]], 
-        [[1, 1]], 
-        [[1], [1]], 
-        [[1, 1], [1, 1]], 
-        [[1, 1, 1]], 
-        [[1], [1], [1]], 
-        [[1, 1], [1, 0]], 
-        [[1, 1, 1], [0, 1, 0]]
-    ];
+const SHAPES = [
+[[1]],
+[[1, 1]],
+[[1], [1]],
+[[1, 1], [1, 1]],
+[[1, 1, 1]],
+[[1], [1], [1]],
+[[1, 1], [1, 0]],
+[[1, 1, 1], [0, 1, 0]]
+];
 
-    let board = Array(8).fill(null).map(() => Array(8).fill(null));
-    let score = 0;
-    let currentPieces = [null, null, null];
-    let selectedPieceIndex = null;
-    let memberMsgIndex = 0;
+let board = Array(8).fill(null).map(() => Array(8).fill(null));
+let score = 0;
+let currentPieces = [null, null, null];
+let selectedPieceIndex = null;
+let memberMsgIndex = 0;
 
-    const boardElement = document.getElementById("board");
-    const scoreElement = document.getElementById("score");
-    const finalScoreElement = document.getElementById("final-score");
-    const menuScreen = document.getElementById("menu-screen");
-    const gameoverScreen = document.getElementById("gameover-screen");
-    const startBtn = document.getElementById("start-btn");
-    const restartBtn = document.getElementById("restart-btn");
-    const musicToggleBtn = document.getElementById("music-toggle-btn");
+const boardElement = document.getElementById("board");
+const scoreElement = document.getElementById("score");
+const finalScoreElement = document.getElementById("final-score");
+const menuScreen = document.getElementById("menu-screen");
+const gameoverScreen = document.getElementById("gameover-screen");
+const startBtn = document.getElementById("start-btn");
+const restartBtn = document.getElementById("restart-btn");
+const musicToggleBtn = document.getElementById("music-toggle-btn");
 
-    const bubble = document.getElementById("speech-bubble");
-    const bubbleImg = document.getElementById("bubble-img");
-    const bubbleName = document.getElementById("bubble-name");
-    const bubbleMsg = document.getElementById("bubble-msg");
+const bubble = document.getElementById("speech-bubble");
+const bubbleImg = document.getElementById("bubble-img");
+const bubbleName = document.getElementById("bubble-name");
+const bubbleMsg = document.getElementById("bubble-msg");
 
-    // Müzik Seçimi
-    document.querySelectorAll(".music-option").forEach(opt => {
-        opt.onclick = () => {
-            document.querySelectorAll(".music-option").forEach(o => o.classList.remove("active"));
-            opt.classList.add("active");
-            selectedMusicIndex = parseInt(opt.dataset.index);
-            if (player && apiReady) {
-                player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
-                if (isMusicMuted) player.pauseVideo();
-            }
-        };
-    });
+// Müzik Seçimi
+document.querySelectorAll(".music-option").forEach(opt => {
+opt.onclick = () => {
+document.querySelectorAll(".music-option").forEach(o => o.classList.remove("active"));
+opt.classList.add("active");
+selectedMusicIndex = parseInt(opt.dataset.index);
+if (player && apiReady) {
+player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
+if (isMusicMuted) player.pauseVideo();
+}
+};
+});
 
-    musicToggleBtn.onclick = () => {
-        isMusicMuted = !isMusicMuted;
-        if (!player || !apiReady) return;
-        if (isMusicMuted) {
-            musicToggleBtn.textContent = "🔇 Müzik: Kapalı";
-            player.pauseVideo();
-        } else {
-            musicToggleBtn.textContent = "🔊 Müzik: Açık";
-            player.playVideo();
-        }
-    };
+musicToggleBtn.onclick = () => {
+isMusicMuted = !isMusicMuted;
+if (!player || !apiReady) return;
+if (isMusicMuted) {
+musicToggleBtn.textContent = "🔇 Müzik: Kapalı";
+player.pauseVideo();
+} else {
+musicToggleBtn.textContent = "🔊 Müzik: Açık";
+player.playVideo();
+}
+};
 
-    startBtn.onclick = () => {
-        menuScreen.classList.add("hidden");
-        if (player && apiReady && !isMusicMuted) {
-            player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
-            player.playVideo();
-        }
-        initGame();
-    };
+startBtn.onclick = () => {
+menuScreen.classList.add("hidden");
+if (player && apiReady && !isMusicMuted) {
+player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
+player.playVideo();
+}
+initGame();
+};
 
-    restartBtn.onclick = () => {
-        gameoverScreen.classList.add("hidden");
-        if (player && apiReady && !isMusicMuted) {
-            player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
-            player.playVideo();
-        }
-        initGame();
-    };
+restartBtn.onclick = () => {
+gameoverScreen.classList.add("hidden");
+if (player && apiReady && !isMusicMuted) {
+player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
+player.playVideo();
+}
+initGame();
+};
 
-    function initGame() {
-        board = Array(8).fill(null).map(() => Array(8).fill(null));
-        score = 0;
-        scoreElement.textContent = score;
-        generateNewPieces();
-        renderBoard();
-    }
+function initGame() {
+board = Array(8).fill(null).map(() => Array(8).fill(null));
+score = 0;
+scoreElement.textContent = score;
+generateNewPieces();
+renderBoard();
+}
 
-    function renderBoard() {
-        boardElement.innerHTML = "";
-        for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-                const cell = document.createElement("div");
-                cell.className = "cell";
-                cell.dataset.row = r;
-                cell.dataset.col = c;
+function renderBoard() {
+boardElement.innerHTML = "";
+for (let r = 0; r < 8; r++) {
+for (let c = 0; c < 8; c++) {
+const cell = document.createElement("div");
+cell.className = "cell";
+cell.dataset.row = r;
+cell.dataset.col = c;
 
-                if (board[r][c]) {
-                    const img = document.createElement("img");
-                    img.src = encodeURIComponent(board[r][c].img);
-                    img.onerror = () => {
-                        cell.style.backgroundColor = board[r][c].color;
-                        img.remove();
-                    };
-                    cell.appendChild(img);
-                }
+if (board[r][c]) {
+const img = document.createElement("img");
+img.src = encodeURIComponent(board[r][c].img);
+img.onerror = () => {
+cell.style.backgroundColor = board[r][c].color;
+img.remove();
+};
+cell.appendChild(img);
+}
 
-                cell.onclick = () => handleCellClick(r, c);
-                boardElement.appendChild(cell);
-            }
-        }
-    }
+cell.onclick = () => handleCellClick(r, c);
+boardElement.appendChild(cell);
+}
+}
+}
 
-    function generateNewPieces() {
-        for (let i = 0; i < 3; i++) {
-            const randomShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-            const randomMember = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
-            currentPieces[i] = { shape: randomShape, member: randomMember };
-        }
-        renderPieces();
-        checkGameOver();
-    }
+function generateNewPieces() {
+for (let i = 0; i < 3; i++) {
+const randomShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+const randomMember = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
+currentPieces[i] = { shape: randomShape, member: randomMember };
+}
+renderPieces();
+checkGameOver();
+}
 
-    function renderPieces() {
-        for (let i = 0; i < 3; i++) {
-            const slot = document.getElementById(`slot-${i}`);
-            slot.innerHTML = "";
-            slot.classList.remove("selected");
-            const pieceData = currentPieces[i];
+function renderPieces() {
+for (let i = 0; i < 3; i++) {
+const slot = document.getElementById(slot-${i}`);
+slot.innerHTML = "";
+slot.classList.remove("selected");
+const pieceData = currentPieces[i];
 
-            if (!pieceData) continue;
+if (!pieceData) continue;
 
-            const rows = pieceData.shape.length;
-            const cols = pieceData.shape[0].length;
+const rows = pieceData.shape.length;
+const cols = pieceData.shape[0].length;
 
-            const miniGrid = document.createElement("div");
-            miniGrid.className = "mini-grid";
-            miniGrid.style.gridTemplateColumns = `repeat(${cols}, 22px)`;
-            miniGrid.style.gridTemplateRows = `repeat(${rows}, 22px)`;
+const miniGrid = document.createElement("div");
+miniGrid.className = "mini-grid";
+miniGrid.style.gridTemplateColumns = repeat(${cols}, 22px); miniGrid.style.gridTemplateRows =repeat(${rows}, 22px)`;
 
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    const miniCell = document.createElement("div");
-                    miniCell.className = "mini-cell";
-                    if (pieceData.shape[r][c] === 1) {
-                        const img = document.createElement("img");
-                        img.src = encodeURIComponent(pieceData.member.img);
-                        img.onerror = () => {
-                            miniCell.style.backgroundColor = pieceData.member.color;
-                            img.remove();
-                        };
-                        miniCell.appendChild(img);
-                    } else {
-                        miniCell.style.opacity = "0";
-                    }
-                    miniGrid.appendChild(miniCell);
-                }
-            }
+for (let r = 0; r < rows; r++) {
+for (let c = 0; c < cols; c++) {
+const miniCell = document.createElement("div");
+miniCell.className = "mini-cell";
+if (pieceData.shape[r][c] === 1) {
+const img = document.createElement("img");
+img.src = encodeURIComponent(pieceData.member.img);
+img.onerror = () => {
+miniCell.style.backgroundColor = pieceData.member.color;
+img.remove();
+};
+miniCell.appendChild(img);
+} else {
+miniCell.style.opacity = "0";
+}
+miniGrid.appendChild(miniCell);
+}
+}
 
-            slot.appendChild(miniGrid);
-            slot.onclick = () => selectPiece(i);
-        }
-    }
+slot.appendChild(miniGrid);
+slot.onclick = () => selectPiece(i);
+}
+}
 
-    function selectPiece(index) {
-        if (!currentPieces[index]) return;
-        selectedPieceIndex = index;
-        document.querySelectorAll(".piece-slot").forEach((s, idx) => {
-            if (idx === index) s.classList.add("selected");
-            else s.classList.remove("selected");
-        });
-    }
+function selectPiece(index) {
+if (!currentPieces[index]) return;
+selectedPieceIndex = index;
+document.querySelectorAll(".piece-slot").forEach((s, idx) => {
+if (idx === index) s.classList.add("selected");
+else s.classList.remove("selected");
+});
+}
 
-    function handleCellClick(row, col) {
-        if (selectedPieceIndex === null || !currentPieces[selectedPieceIndex]) return;
+function handleCellClick(row, col) {
+if (selectedPieceIndex === null || !currentPieces[selectedPieceIndex]) return;
 
-        const piece = currentPieces[selectedPieceIndex];
-        const shape = piece.shape;
-        const rows = shape.length;
-        const cols = shape[0].length;
+const piece = currentPieces[selectedPieceIndex];
+const shape = piece.shape;
+const rows = shape.length;
+const cols = shape[0].length;
 
-        if (canPlaceShape(shape, row, col)) {
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    if (shape[r][c] === 1) {
-                        board[row + r][col + c] = piece.member;
-                    }
-                }
-            }
+if (canPlaceShape(shape, row, col)) {
+for (let r = 0; r < rows; r++) {
+for (let c = 0; c < cols; c++) {
+if (shape[r][c] === 1) {
+board[row + r][col + c] = piece.member;
+}
+}
+}
 
-            score += rows * cols * 10;
-            scoreElement.textContent = score;
+score += rows * cols * 10;
+scoreElement.textContent = score;
 
-            currentPieces[selectedPieceIndex] = null;
-            selectedPieceIndex = null;
+currentPieces[selectedPieceIndex] = null;
+selectedPieceIndex = null;
 
-            checkAndClearLines();
-            renderBoard();
-            renderPieces();
+checkAndClearLines();
+renderBoard();
+renderPieces();
 
-            if (currentPieces.every(p => p === null)) {
-                generateNewPieces();
-            }
-        }
-    }
+if (currentPieces.every(p => p === null)) {
+generateNewPieces();
+}
+}
+}
 
-    function canPlaceShape(shape, startR, startC) {
-        const rows = shape.length;
-        const cols = shape[0].length;
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                if (shape[r][c] === 1) {
-                    let tr = startR + r;
-                    let tc = startC + c;
-                    if (tr >= 8 || tc >= 8 || board[tr][tc] !== null) return false;
-                }
-            }
-        }
-        return true;
-    }
+function canPlaceShape(shape, startR, startC) {
+const rows = shape.length;
+const cols = shape[0].length;
+for (let r = 0; r < rows; r++) {
+for (let c = 0; c < cols; c++) {
+if (shape[r][c] === 1) {
+let tr = startR + r;
+let tc = startC + c;
+if (tr >= 8 || tc >= 8 || board[tr][tc] !== null) return false;
+}
+}
+}
+return true;
+}
 
-    function checkAndClearLines() {
-        let rowsToClear = [];
-        let colsToClear = [];
+function checkAndClearLines() {
+let rowsToClear = [];
+let colsToClear = [];
 
-        for (let r = 0; r < 8; r++) {
-            if (board[r].every(cell => cell !== null)) rowsToClear.push(r);
-        }
+for (let r = 0; r < 8; r++) {
+if (board[r].every(cell => cell !== null)) rowsToClear.push(r);
+}
 
-        for (let c = 0; c < 8; c++) {
-            let colFull = true;
-            for (let r = 0; r < 8; r++) {
-                if (board[r][c] === null) { colFull = false; break; }
-            }
-            if (colFull) colsToClear.push(c);
-        }
+for (let c = 0; c < 8; c++) {
+let colFull = true;
+for (let r = 0; r < 8; r++) {
+if (board[r][c] === null) { colFull = false; break; }
+}
+if (colFull) colsToClear.push(c);
+}
 
-        const totalCleared = rowsToClear.length + colsToClear.length;
+const totalCleared = rowsToClear.length + colsToClear.length;
 
-        if (totalCleared > 0) {
-            rowsToClear.forEach(r => {
-                for (let c = 0; c < 8; c++) board[r][c] = null;
-                score += 100;
-            });
+if (totalCleared > 0) {
+rowsToClear.forEach(r => {
+for (let c = 0; c < 8; c++) board[r][c] = null;
+score += 100;
+});
 
-            colsToClear.forEach(c => {
-                for (let r = 0; r < 8; r++) board[r][c] = null;
-                score += 100;
-            });
+colsToClear.forEach(c => {
+for (let r = 0; r < 8; r++) board[r][c] = null;
+score += 100;
+});
 
-            scoreElement.textContent = score;
-            showSpeechBubble();
-        }
-    }
+scoreElement.textContent = score;
+showSpeechBubble();
+}
+}
 
-    function showSpeechBubble() {
-        const currentMember = MEMBERS[memberMsgIndex];
-        memberMsgIndex = (memberMsgIndex + 1) % MEMBERS.length;
+function showSpeechBubble() {
+const currentMember = MEMBERS[memberMsgIndex];
+memberMsgIndex = (memberMsgIndex + 1) % MEMBERS.length;
 
-        bubbleImg.src = encodeURIComponent(currentMember.img);
-        bubbleImg.onerror = () => { bubbleImg.style.backgroundColor = currentMember.color; };
-        bubbleName.textContent = currentMember.name;
-        bubbleMsg.textContent = currentMember.msg;
+bubbleImg.src = encodeURIComponent(currentMember.img);
+bubbleImg.onerror = () => { bubbleImg.style.backgroundColor = currentMember.color; };
+bubbleName.textContent = currentMember.name;
+bubbleMsg.textContent = currentMember.msg;
 
-        bubble.classList.add("active");
-        setTimeout(() => {
-            bubble.classList.remove("active");
-        }, 2200);
-    }
+bubble.classList.add("active");
+setTimeout(() => {
+bubble.classList.remove("active");
+}, 2200);
+}
 
-    function checkGameOver() {
-        let possibleMoves = 0;
-        currentPieces.forEach(piece => {
-            if (!piece) return;
-            const shape = piece.shape;
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    if (canPlaceShape(shape, r, c)) possibleMoves++;
-                }
-            }
-        });
+function checkGameOver() {
+let possibleMoves = 0;
+currentPieces.forEach(piece => {
+if (!piece) return;
+const shape = piece.shape;
+for (let r = 0; r < 8; r++) {
+for (let c = 0; c < 8; c++) {
+if (canPlaceShape(shape, r, c)) possibleMoves++;
+}
+}
+});
 
-        if (possibleMoves === 0 && currentPieces.some(p => p !== null)) {
-            if (player && apiReady) player.pauseVideo();
-            finalScoreElement.textContent = score;
-            gameoverScreen.classList.remove("hidden");
-        }
-    }
+if (possibleMoves === 0 && currentPieces.some(p => p !== null)) {
+if (player && apiReady) player.pauseVideo();
+finalScoreElement.textContent = score;
+gameoverScreen.classList.remove("hidden");
+}
+}
 </script>
 </body>
 </html>
+
