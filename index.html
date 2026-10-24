@@ -268,4 +268,266 @@ h1 {
 
     <div id="gameover-screen" class="screen hidden">
         <h1 style="color: #ff4d4d; font-size: 24px;">HAMLE KALMADI!</h1>
-        <p style="color: #aaa; margin-top: 4px; font-size: 
+        <p style="color: #aaa; margin-top: 4px; font-size: 13px;">Oyun Bitti</p>
+        <p style="font-size: 18px; margin: 12px 0;">Toplam Skor: <span id="final-score" style="color: #4eacc5; font-weight: bold;">0</span></p>
+        <button class="btn" id="restart-btn">TEKRAR OYNA</button>
+    </div>
+</div>
+
+<script>
+const MEMBERS = [
+    { name: "Arda", img: "32232683813cb0908224ba7baadf1f28.jpg", color: "#e94560", msg: "Lesssssgo!" },
+    { name: "Barış", img: "0baeaaac22cb5c8d25f379ac1b5c6780.jpg", color: "#0f3460", msg: "Agalarla balon patlatma işi aktı." },
+    { name: "Milan", img: "abebcc0ec43891eba8290da100603d77.jpg", color: "#e5b8f4", msg: "Süpersin homie!" },
+    { name: "Oğuzhan", img: "080be3d28e7d3be288b62f6a57a207d3.jpg", color: "#810ca8", msg: "Bir türk kahvesini hakettin." },
+    { name: "Batu", img: "HVVk-_LXkAA4hxd(1).jpg", color: "#2d033b", msg: "Küçük seninle gurur duyuyor!" },
+    { name: "Miraç", img: "30c5e7b1e5d1220a362e9c17fe70e130.jpg", color: "#c0392b", msg: "Ben bu skora gaklarım." },
+    { name: "Efe", img: "87b3cfb6f7b6e696ca4ccb8f576b151c.jpg", color: "#27ae60", msg: "Harikasın gank!" }
+];
+
+const SHAPES = [
+    [[1]],
+    [[1, 1]],
+    [[1], [1]],
+    [[1, 1], [1, 1]],
+    [[1, 1, 1]],
+    [[1], [1], [1]],
+    [[1, 1], [1, 0]],
+    [[1, 1, 1], [0, 1, 0]]
+];
+
+let board = Array(8).fill(null).map(() => Array(8).fill(null));
+let score = 0;
+let currentPieces = [null, null, null];
+let selectedPieceIndex = null;
+let memberMsgIndex = 0;
+
+const boardElement = document.getElementById("board");
+const scoreElement = document.getElementById("score");
+const finalScoreElement = document.getElementById("final-score");
+const menuScreen = document.getElementById("menu-screen");
+const gameoverScreen = document.getElementById("gameover-screen");
+const startBtn = document.getElementById("start-btn");
+const restartBtn = document.getElementById("restart-btn");
+
+const bubble = document.getElementById("speech-bubble");
+const bubbleImg = document.getElementById("bubble-img");
+const bubbleName = document.getElementById("bubble-name");
+const bubbleMsg = document.getElementById("bubble-msg");
+
+startBtn.onclick = () => {
+    menuScreen.classList.add("hidden");
+    initGame();
+};
+
+restartBtn.onclick = () => {
+    gameoverScreen.classList.add("hidden");
+    initGame();
+};
+
+function initGame() {
+    board = Array(8).fill(null).map(() => Array(8).fill(null));
+    score = 0;
+    scoreElement.textContent = score;
+    generateNewPieces();
+    renderBoard();
+}
+
+function renderBoard() {
+    boardElement.innerHTML = "";
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+
+            if (board[r][c]) {
+                const img = document.createElement("img");
+                img.src = board[r][c].img;
+                img.onerror = function() {
+                    this.parentNode.style.backgroundColor = board[r][c].color;
+                    this.remove();
+                };
+                cell.appendChild(img);
+            }
+
+            cell.onclick = () => handleCellClick(r, c);
+            boardElement.appendChild(cell);
+        }
+    }
+}
+
+function generateNewPieces() {
+    for (let i = 0; i < 3; i++) {
+        const randomShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        const randomMember = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
+        currentPieces[i] = { shape: randomShape, member: randomMember };
+    }
+    renderPieces();
+    checkGameOver();
+}
+
+function renderPieces() {
+    for (let i = 0; i < 3; i++) {
+        const slot = document.getElementById("slot-" + i);
+        slot.innerHTML = "";
+        slot.classList.remove("selected");
+        const pieceData = currentPieces[i];
+
+        if (!pieceData) continue;
+
+        const rows = pieceData.shape.length;
+        const cols = pieceData.shape[0].length;
+
+        const miniGrid = document.createElement("div");
+        miniGrid.className = "mini-grid";
+        miniGrid.style.gridTemplateColumns = "repeat(" + cols + ", 20px)";
+        miniGrid.style.gridTemplateRows = "repeat(" + rows + ", 20px)";
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const miniCell = document.createElement("div");
+                miniCell.className = "mini-cell";
+                if (pieceData.shape[r][c] === 1) {
+                    const img = document.createElement("img");
+                    img.src = pieceData.member.img;
+                    img.onerror = function() {
+                        this.parentNode.style.backgroundColor = pieceData.member.color;
+                        this.remove();
+                    };
+                    miniCell.appendChild(img);
+                } else {
+                    miniCell.style.opacity = "0";
+                }
+                miniGrid.appendChild(miniCell);
+            }
+        }
+
+        slot.appendChild(miniGrid);
+        slot.onclick = () => selectPiece(i);
+    }
+}
+
+function selectPiece(index) {
+    if (!currentPieces[index]) return;
+    selectedPieceIndex = index;
+    document.querySelectorAll(".piece-slot").forEach((s, idx) => {
+        if (idx === index) s.classList.add("selected");
+        else s.classList.remove("selected");
+    });
+}
+
+function handleCellClick(row, col) {
+    if (selectedPieceIndex === null || !currentPieces[selectedPieceIndex]) return;
+
+    const piece = currentPieces[selectedPieceIndex];
+    const shape = piece.shape;
+    const rows = shape.length;
+    const cols = shape[0].length;
+
+    if (canPlaceShape(shape, row, col)) {
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if (shape[r][c] === 1) {
+                    board[row + r][col + c] = piece.member;
+                }
+            }
+        }
+
+        score += rows * cols * 10;
+        scoreElement.textContent = score;
+
+        currentPieces[selectedPieceIndex] = null;
+        selectedPieceIndex = null;
+
+        checkAndClearLines();
+        renderBoard();
+        renderPieces();
+
+        if (currentPieces.every(p => p === null)) {
+            generateNewPieces();
+        }
+    }
+}
+
+function canPlaceShape(shape, startR, startC) {
+    const rows = shape.length;
+    const cols = shape[0].length;
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            if (shape[r][c] === 1) {
+                let tr = startR + r;
+                let tc = startC + c;
+                if (tr >= 8 || tc >= 8 || board[tr][tc] !== null) return false;
+            }
+        }
+    }
+    return true;
+}
+
+function checkAndClearLines() {
+    let rowsToClear = [];
+    let colsToClear = [];
+
+    for (let r = 0; r < 8; r++) {
+        if (board[r].every(cell => cell !== null)) rowsToClear.push(r);
+    }
+
+    for (let c = 0; c < 8; c++) {
+        let colFull = true;
+        for (let r = 0; r < 8; r++) {
+            if (board[r][c] === null) { colFull = false; break; }
+        }
+        if (colFull) colsToClear.push(c);
+    }
+
+    if (rowsToClear.length > 0 || colsToClear.length > 0) {
+        rowsToClear.forEach(r => {
+            for (let c = 0; c < 8; c++) board[r][c] = null;
+            score += 100;
+        });
+
+        colsToClear.forEach(c => {
+            for (let r = 0; r < 8; r++) board[r][c] = null;
+            score += 100;
+        });
+
+        scoreElement.textContent = score;
+        showSpeechBubble();
+    }
+}
+
+function showSpeechBubble() {
+    const currentMember = MEMBERS[memberMsgIndex];
+    memberMsgIndex = (memberMsgIndex + 1) % MEMBERS.length;
+
+    bubbleImg.src = currentMember.img;
+    bubbleImg.onerror = function() { this.style.backgroundColor = currentMember.color; };
+    bubbleName.textContent = currentMember.name;
+    bubbleMsg.textContent = currentMember.msg;
+
+    bubble.classList.add("active");
+    setTimeout(() => {
+        bubble.classList.remove("active");
+    }, 2200);
+}
+
+function checkGameOver() {
+    let possibleMoves = 0;
+    currentPieces.forEach(piece => {
+        if (!piece) return;
+        const shape = piece.shape;
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                if (canPlaceShape(shape, r, c)) possibleMoves++;
+            }
+        }
+    });
+
+    if (possibleMoves === 0 && currentPieces.some(p => p !== null)) {
+        finalScoreElement.textContent = score;
+        gameoverScreen.classList.remove("hidden");
+    }
+}
+</script>
+</body>
+</html>
