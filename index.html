@@ -59,24 +59,14 @@ h1 {
 }
 
 .score-board {
-    font-size: 13px;
+    font-size: 14px;
     color: #a0a0c0;
 }
 
 #score {
     color: #4eacc5;
     font-weight: bold;
-    font-size: 15px;
-}
-
-#music-toggle-btn {
-    background: #0f3460;
-    border: 1px solid #e94560;
-    color: white;
-    padding: 6px 12px;
-    font-size: 12px;
-    border-radius: 15px;
-    cursor: pointer;
+    font-size: 16px;
 }
 
 /* Tebrik Konuşma Balonu */
@@ -88,7 +78,7 @@ h1 {
     background: linear-gradient(135deg, #e94560, #0f3460);
     border: 2px solid #fff;
     border-radius: 18px;
-    padding: 6px 14px;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -96,7 +86,7 @@ h1 {
     z-index: 50;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     pointer-events: none;
-    width: 85%;
+    width: 88%;
 }
 
 #speech-bubble.active {
@@ -212,7 +202,7 @@ h1 {
 .screen {
     position: absolute;
     inset: 0;
-    background: rgba(15, 15, 26, 0.96);
+    background: rgba(15, 15, 26, 0.95);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -230,8 +220,8 @@ h1 {
     background: linear-gradient(45deg, #e94560, #0f3460);
     color: white;
     border: none;
-    padding: 12px 28px;
-    font-size: 15px;
+    padding: 12px 30px;
+    font-size: 16px;
     font-weight: bold;
     border-radius: 20px;
     cursor: pointer;
@@ -242,33 +232,40 @@ h1 {
 .btn:active {
     transform: scale(0.96);
 }
+</style>
+</head>
+<body>
 
-.music-selector {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    max-width: 260px;
-    margin: 10px 0;
-}
+<div id="game-container">
+    <header>
+        <div>
+            <h1>CRUSH BLOCK BLAST</h1>
+            <div class="score-board">Skor: <span id="score">0</span></div>
+        </div>
+    </header>
 
-.music-option {
-    background: #16213e;
-    border: 2px solid #0f3460;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: bold;
-}
+    <div id="speech-bubble">
+        <img id="bubble-img" src="" alt="Crush">
+        <div class="text-container">
+            <span class="member-name" id="bubble-name">Arda</span>
+            <span class="member-message" id="bubble-msg">Lesssssgo!</span>
+        </div>
+    </div>
 
-.music-option.active {
-    border-color: #e94560;
-    background: #0f3460;
-}
+    <div id="board"></div>
 
-#yt-player {
-    position: absolute;
-    width: 0;
-    height: 0;
-    opacity:
+    <div id="pieces-container">
+        <div class="piece-slot" id="slot-0"></div>
+        <div class="piece-slot" id="slot-1"></div>
+        <div class="piece-slot" id="slot-2"></div>
+    </div>
+
+    <div id="menu-screen" class="screen">
+        <h1 style="font-size: 26px; margin-bottom: 8px; color: #e94560;">CRUSH BLOCK BLAST</h1>
+        <p style="margin-bottom: 20px; color: #a0a0c0; font-size: 14px;">7 üyeli Crush ekibinin bulmacası!</p>
+        <button class="btn" id="start-btn">OYUNA BAŞLA</button>
+    </div>
+
+    <div id="gameover-screen" class="screen hidden">
+        <h1 style="color: #ff4d4d; font-size: 24px;">HAMLE KALMADI!</h1>
+        <p style="color: #aaa; margin-top: 4px; font-size: 
