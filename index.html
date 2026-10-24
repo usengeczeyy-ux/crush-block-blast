@@ -61,7 +61,6 @@
             font-weight: bold;
         }
         
-        /* MÜZİK KONTROL BUTONU (SAĞ ÜST) */
         #music-toggle-btn {
             background: #0f3460;
             border: 1px solid #e94560;
@@ -208,9 +207,24 @@
             background: #0f3460;
             box-shadow: 0 0 10px rgba(233, 69, 96, 0.4);
         }
+        
+        /* Gizli YouTube Oynatıcı Alanı */
+        #youtube-player-container {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+
+<!-- YouTube Şarkı Kaynakları -->
+<div id="youtube-player-container">
+    <div id="yt-player"></div>
+</div>
 
 <div id="game-container">
     <header>
@@ -218,7 +232,6 @@
             <h1>CRUSH BLOCK BLAST</h1>
             <div class="score-board">Skor: <span id="score">0</span></div>
         </div>
-        <!-- Ses Aç/Kapat Butonu -->
         <button id="music-toggle-btn">🔊 Müzik: Açık</button>
     </header>
 
@@ -234,11 +247,11 @@
         <h1 style="font-size: 26px; margin-bottom: 8px;">CRUSH BLOCK BLAST</h1>
         <p class="subtitle" style="margin-bottom: 15px;">7 üyeli Crush ekibinin bulmacası!</p>
         
-        <div class="member-info">Oyun sırasında çalacak müziği seç:</div>
+        <div class="member-info">Oyun sırasında çalacak şarkıyı seç:</div>
         
         <div class="music-selector">
-            <div class="music-option active" data-index="0">🎵 CRUSH! (Resmi Müzik)</div>
-            <div class="music-option" data-index="1">🎶 BENİM OLSANA</div>
+            <div class="music-option active" data-index="0">🎵 CRUSH - CRUSH!</div>
+            <div class="music-option" data-index="1">🎶 CRUSH - BENİM OLSANA</div>
         </div>
 
         <button class="btn" id="start-btn">OYUNA BAŞLA</button>
@@ -252,6 +265,9 @@
     </div>
 </div>
 
+<!-- YouTube IFrame API Script -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
     const MEMBERS = [
         { name: "Efe", img: "32232683813cb0908224ba7baadf1f28.jpg", color: "#e94560" },
@@ -263,14 +279,33 @@
         { name: "Barış", img: "87b3cfb6f7b6e696ca4ccb8f576b151c.jpg", color: "#27ae60" }
     ];
 
-    const MUSIC_LIST = [
-        { name: "CRUSH!", file: "CRUSH - CRUSH! Resmi Müzik Videosu.mp3" },
-        { name: "BENİM OLSANA", file: "CRUSH - BENİM OLSANA Resmi Müzik Videosu.mp3" }
+    // Gönderdiğin YouTube video ID'leri
+    const YOUTUBE_VIDEOS = [
+        "aKGCXYX7jN8", // CRUSH - CRUSH!
+        "ZVVylrAkmfg"  // CRUSH - BENİM OLSANA
     ];
 
     let selectedMusicIndex = 0;
-    let backgroundAudio = null;
+    let player = null;
     let isMusicMuted = false;
+    let apiReady = false;
+
+    // YouTube API Yüklenince tetiklenir
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('yt-player', {
+            height: '0',
+            width: '0',
+            videoId: YOUTUBE_VIDEOS[selectedMusicIndex],
+            playerVars: {
+                'autoplay': 0,
+                'loop': 1,
+                'playlist': YOUTUBE_VIDEOS[selectedMusicIndex]
+            },
+            events: {
+                'onReady': () => { apiReady = true; }
+            }
+        });
+    }
 
     const SHAPES = [
         [[1]], 
@@ -302,56 +337,43 @@
             musicOptions.forEach(o => o.classList.remove("active"));
             opt.classList.add("active");
             selectedMusicIndex = parseInt(opt.dataset.index);
+            if (player && apiReady) {
+                player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
+                if (isMusicMuted) player.pauseVideo();
+            }
         };
     });
 
-    // Ses Aç/Kapat Butonuna Basıldığında
     musicToggleBtn.onclick = () => {
         isMusicMuted = !isMusicMuted;
+        if (!player || !apiReady) return;
+
         if (isMusicMuted) {
             musicToggleBtn.textContent = "🔇 Müzik: Kapalı";
-            if (backgroundAudio) backgroundAudio.pause();
+            player.pauseVideo();
         } else {
             musicToggleBtn.textContent = "🔊 Müzik: Açık";
-            playSelectedMusic();
+            player.playVideo();
         }
     };
 
     startBtn.onclick = () => {
         menuScreen.classList.add("hidden");
-        playSelectedMusic();
+        if (player && apiReady && !isMusicMuted) {
+            player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
+            player.playVideo();
+        }
         initGame();
     };
 
     restartBtn.onclick = () => {
         gameoverScreen.classList.add("hidden");
-        playSelectedMusic();
+        if (player && apiReady && !isMusicMuted) {
+            player.loadVideoById(YOUTUBE_VIDEOS[selectedMusicIndex]);
+            player.playVideo();
+        }
         initGame();
     };
-
-    function playSelectedMusic() {
-        if (isMusicMuted) return;
-
-        if (backgroundAudio) {
-            backgroundAudio.pause();
-            backgroundAudio = null;
-        }
-
-        try {
-            const track = MUSIC_LIST[selectedMusicIndex];
-            backgroundAudio = new Audio(encodeURIComponent(track.file));
-            backgroundAudio.loop = true;
-            
-            let promise = backgroundAudio.play();
-            if (promise !== undefined) {
-                promise.catch(error => {
-                    console.log("Tarayıcı otomatik oynatmayı engelledi, butona basılması bekleniyor.", error);
-                });
-            }
-        } catch (e) {
-            console.log("Ses hatası:", e);
-        }
-    }
 
     function initGame() {
         board = Array(8).fill(null).map(() => Array(8).fill(null));
@@ -535,7 +557,7 @@
         });
 
         if (possibleMoves === 0 && currentPieces.some(p => p !== null)) {
-            if (backgroundAudio) backgroundAudio.pause();
+            if (player && apiReady) player.pauseVideo();
             finalScoreElement.textContent = score;
             gameoverScreen.classList.remove("hidden");
         }
